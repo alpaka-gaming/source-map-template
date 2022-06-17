@@ -1,0 +1,144 @@
+# This is a normal build workflow
+
+name: Normal
+
+on:
+  push:
+    tags:
+      - b*
+    paths:
+      - '**.vmf'
+
+  # Allows you to run this workflow manually from the Actions tab
+  # workflow_dispatch:
+
+env:
+  SOURCE_SDK_MODE: "depotdownloader" # The Source SDK depot downloader mode
+  DOTNET_SDK_VERSION: '6.0.x' # The .NET SDK version to use
+  BZ2_URL: "https://github.com/philr/bzip2-windows/releases/download/v1.0.8.0/bzip2-1.0.8.0-win-x64.zip"
+  STEAMCMD_URL: "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip"
+  DEPOTDOWNLOADER_URL: "https://github.com/SteamRE/DepotDownloader/releases/latest/download/depotdownloader-2.4.6.zip"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        id: checkout
+        uses: actions/checkout@v3
+        with:
+          ref: 'develop'
+    
+      - name: Read .env File
+        id: env_file
+        uses: falti/dotenv-action@v0.2.8
+
+      - name: Check VMF Files
+        id: check_vmf_existence
+        uses: andstor/file-existence-action@v1
+        with:
+          files: "src/maps/${{ steps.env_file.outputs.map_name }}.vmf"
+          allow_failure: true
+      
+      - name: Cache Tools Folders
+        id: cache_tools_folder
+        uses: actions/cache@v3
+        with:
+          path: tools
+          key: ${{ secrets.STEAM_USERNAME }}-${{ steps.env_file.outputs.steam_sdk_appid }}
+
+      - name: Install .NET SDK
+        id: install_dotnet_dsk
+        if: ${{ env.SOURCE_SDK_MODE }} == "depotdownloader"
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: ${{ env.DOTNET_SDK_VERSION }}
+
+      - name: Download Tools
+        id: download_tools
+        uses: Amadevus/pwsh-script@v2.0.1
+        with:
+          script: |
+            if (!(Test-Path -path "tools/bzip2.zip"))
+            {
+              Invoke-WebRequest ${{ env.BZ2_URL }} -O tools/bzip2.zip
+              Expand-Archive tools/bzip2.zip tools/bzip2
+            }
+            if ("${{ env.SOURCE_SDK_MODE }}" -eq "steamcmd")
+            {
+                if (!(Test-Path -path "steamcmd.zip"))
+                {
+                    Invoke-WebRequest ${{ env.STEAMCMD_URL }} -O steamcmd.zip
+                    Expand-Archive steamcmd.zip steamcmd
+                }
+                Invoke-Expression "steamcmd/steamcmd.exe +force_install_dir tools/depots/${{ steps.env_file.outputs.steam_sdk_appid }} +login ${{ secrets.STEAM_USERNAME }} ${{ secrets.STEAM_PASSWORD }} +app_update ${{ steps.env_file.outputs.steam_sdk_appid }} validate +quit"
+            }
+            if ("${{ env.SOURCE_SDK_MODE }}" -eq "depotdownloader")
+            {
+              if (!(Test-Path -path "tools/depotdownloader.zip"))
+              {
+                Invoke-WebRequest ${{ env.DEPOTDOWNLOADER_URL }} -O tools/depotdownloader.zip
+                Expand-Archive tools/depotdownloader.zip tools/depotdownloader
+                dotnet tools/depotdownloader/DepotDownloader.dll -username ${{ secrets.STEAM_USERNAME }} -password ${{ secrets.STEAM_PASSWORD }} -app ${{ steps.env_file.outputs.steam_sdk_appid }} -dir tools/depots/${{ steps.env_file.outputs.steam_sdk_appid }}
+              }
+            }
+
+      - name: Build
+        id: build_map
+        uses: Amadevus/pwsh-script@v2.0.1
+        with:
+          script: |
+            Copy-Item "src/maps/${{ steps.env_file.outputs.map_name }}.vmf" -Destination "src/maps/${{ steps.env_file.outputs.map_name }}_${{ github.ref_name }}.vmf"
+
+            $path = Resolve-Path "src/maps"
+            $file = "${{ steps.env_file.outputs.map_name }}_${{ github.ref_name }}.vmf"
+            $gamedir = Resolve-Path "tools/depots/${{ steps.env_file.outputs.steam_sdk_appid }}/${{ steps.env_file.outputs.game_name }}"
+            $bin_path = "tools/depots/${{ steps.env_file.outputs.steam_sdk_appid }}/bin"
+            $bsp_exe = Resolve-Path "$bin_path/vbsp.exe"
+            $vis_exe = Resolve-Path "$bin_path/vvis.exe"
+            $light_exe = Resolve-Path "$bin_path/vrad.exe"
+            $bzip2_exe = Resolve-Path "tools/bzip2/bzip2.exe"
+            $bsp_file = "${{ steps.env_file.outputs.map_name }}_${{ github.ref_name }}.bsp"
+
+            Invoke-Expression "$bsp_exe -game ""$gamedir"" ""$path/$file"""
+            Invoke-Expression "$vis_exe -game ""$gamedir"" ""$path/$file"""
+            Invoke-Expression "$light_exe -game ""$gamedir"" ""$path/$file"""
+            Invoke-Expression "$bzip2_exe ""$path/$bsp_file"""
+
+      - name: Upload Artifact (Result)
+        id: upload_artifact_bz2
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.env_file.outputs.map_name }}_${{ github.ref_name }}.bsp.bz2
+          path: src/maps/${{ steps.env_file.outputs.map_name }}_${{ github.ref_name }}.bsp.bz2
+          if-no-files-found: error
+
+      - name: Upload Artifact (Trace)
+        id: upload_artifact_trace
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.env_file.outputs.map_name }}_${{ github.ref_name }}.zip
+          path: |
+            src/maps/*.prt
+            src/maps/*.log
+
+      - name: Create Release
+        id: create_release
+        uses: ncipollo/release-action@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          draft: false
+          prerelease: true
+          bodyFile: CHANGELOG.md
+          artifacts: "src/maps/${{ steps.env_file.outputs.map_name }}_${{ github.ref_name }}.bsp.bz2"
+
+      # - name: Discord Notification
+      #   id: discord_notification
+      #   uses: appleboy/discord-action@master
+      #   with:
+      #     webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+      #     webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+      #     color: "#48f442"
+      #     username: "GitHub Bot"
+      #     args: 'The map [${{ steps.env_file.outputs.map_name }}_${{ github.ref_name }}] has been deployed.'

@@ -1,0 +1,23 @@
+﻿# tools
+tools/*.zip
+tools/depotdownloader
+tools/steamcmd
+tools/bzip2
+
+# depots
+tools/depots
+tools/depots/**/.DepotDownloader
+tools/depots/**/hl2
+tools/depots/**/hl2.exe
+tools/depots/**/sourcetest
+
+# src
+*.bz2
+*.bsp
+*.log
+*.prt
+*.vmx
+*.ain
+
+# privates
+*.private.*
