@@ -21,3 +21,4 @@ tools/depots/**/sourcetest
 
 # privates
 *.private.*
+*.unpacked
