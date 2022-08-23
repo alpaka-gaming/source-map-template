@@ -1,8 +1,10 @@
 ﻿# tools
 tools/*.zip
+!tools/slammintools.zip
 tools/depotdownloader
 tools/steamcmd
 tools/bzip2
+tools/slammintools
 
 # depots
 tools/depots
@@ -21,3 +23,4 @@ tools/depots/**/sourcetest
 
 # privates
 *.private.*
+*.unpacked
