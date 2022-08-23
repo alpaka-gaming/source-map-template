@@ -23,6 +23,7 @@ $bsp_exe = Resolve-Path "${bindir}/vbsp.exe"
 $vis_exe = Resolve-Path "${bindir}/vvis.exe"
 $light_exe = Resolve-Path "${bindir}/vrad.exe"
 $bspzip_exe = Resolve-Path "${bindir}/bspzip.exe"
+$vpk_exe = Resolve-Path "${bindir}/vpk.exe"
 
 $cubemaps_exe = Resolve-Path "${bindir}/../hl2.exe"
 $bzip2_exe = Resolve-Path "${toolsdir}/bzip2/bzip2.exe"
@@ -46,6 +47,7 @@ Set-Variable -name "bsp_exe" -value $bsp_exe -Scope Global
 Set-Variable -name "vis_exe" -value $vis_exe -Scope Global
 Set-Variable -name "light_exe" -value $light_exe -Scope Global
 Set-Variable -name "bspzip_exe" -value $bspzip_exe -Scope Global
+Set-Variable -name "vpk_exe" -value $vpk_exe -Scope Global
 
 Set-Variable -name "cubemaps_exe" -value $cubemaps_exe -Scope Global
 Set-Variable -name "bzip2_exe" -value $bzip2_exe -Scope Global
