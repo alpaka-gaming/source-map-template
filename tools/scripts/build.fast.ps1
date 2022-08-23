@@ -15,7 +15,8 @@ else
 
 .\_paths.ps1
 
-Invoke-Expression "$bsp_exe -game ""$gamedir"" ""$path\$file"""
-Invoke-Expression "$vis_exe -fast -nosort -game ""$gamedir"" ""$path\$file"""
-Invoke-Expression "$light_exe -fast -bounce 2 -game ""$gamedir"" ""$path\$file"""
-Invoke-Expression "$bzip2_exe ""$path/$bsp_file"""
+Invoke-Expression "${bsp_exe} -game '${gamedir}' '${mapdir}/${map_name}'"
+Invoke-Expression "${vis_exe} -fast -nosort -game '${gamedir}' '${mapdir}/${map_name}'"
+Invoke-Expression "${light_exe} -fast -bounce 2 -game '${gamedir}' '${mapdir}/${map_name}'"
+
+Invoke-Expression "${bzip2_exe} '${mapdir}/${bsp_file}' -f"
