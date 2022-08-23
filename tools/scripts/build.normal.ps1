@@ -13,15 +13,7 @@ else
     .\_variables.ps1
 }
 
-$path = Resolve-Path "..\src\maps"
-$file = "$map.vmf"
-$gamedir = Resolve-Path "depots\$steam_app\$game_name"
-$bin_path = "depots\$steam_app\bin"
-$bsp_exe = Resolve-Path "$bin_path\vbsp.exe"
-$vis_exe = Resolve-Path "$bin_path\vvis.exe"
-$light_exe = Resolve-Path "$bin_path\vrad.exe"
-$bzip2_exe = Resolve-Path "bzip2/bzip2.exe"
-$bsp_file = "$map.bsp"
+.\_paths.ps1
 
 Invoke-Expression "$bsp_exe -game ""$gamedir"" ""$path\$file"""
 Invoke-Expression "$vis_exe -game ""$gamedir"" ""$path\$file"""
