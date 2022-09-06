@@ -28,92 +28,136 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: 'develop'
-    
       - name: Read .env File
         id: env_file
         uses: falti/dotenv-action@v0.2.8
-
       - name: Check VMF Files
         id: check_vmf_existence
         uses: andstor/file-existence-action@v1
         with:
           files: "src/maps/${{ steps.env_file.outputs.map_name }}.vmf"
           allow_failure: true
-      
       - name: Cache Tools Folders
         id: cache_tools_folder
         uses: actions/cache@v3
         with:
           path: tools
           key: ${{ secrets.STEAM_USERNAME }}-${{ steps.env_file.outputs.steam_sdk_appid }}
-
       - name: Install .NET SDK
         id: install_dotnet_dsk
         if: ${{ env.SOURCE_SDK_MODE }} == "depotdownloader"
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version: ${{ env.DOTNET_SDK_VERSION }}
+      - name: Export paths
+        id: export_paths
+        uses: Amadevus/pwsh-script@v2.0.1
+        working-directory: ./tools/scripts
+        run: |
+          $lastTag = "${{ github.ref_name }}"
+          
+          $vmf = "${map}.vmf"
+          $map_name = "${map}_${lastTag}"
+          $vmf_file = "${map_name}.vmf"
+          $bsp_file = "${map_name}.bsp"
+          
+          $toolsdir = Resolve-Path ".."
+          $mapdir = Resolve-Path "../../src/maps"
+          $depotdir = Resolve-Path "../depots"
+          $bindir = Resolve-Path "${depotdir}/${steam_app}/bin"
+          $gamedir = Resolve-Path "${depotdir}/${steam_app}/${game_name}"
+          $sourcetest = Resolve-Path "${depotdir}/${steam_app}/sourcetest"
+          
+          Copy-Item "${mapdir}/${vmf}" "${mapdir}/${vmf_file}" -Force
+          
+          if ($steam_app -eq "243750") #HL2MP
+          {
+              Copy-Item -Path "${toolsdir}/slammintools/mp/*" -Destination "${bindir}" -Force -Recurse
+          }
+          
+          $bsp_exe = Resolve-Path "${bindir}/vbsp.exe"
+          $vis_exe = Resolve-Path "${bindir}/vvis.exe"
+          $light_exe = Resolve-Path "${bindir}/vrad.exe"
+          $bspzip_exe = Resolve-Path "${bindir}/bspzip.exe"
+          $vpk_exe = Resolve-Path "${bindir}/vpk.exe"
+          
+          $cubemaps_exe = Resolve-Path "${bindir}/../hl2.exe"
+          $bzip2_exe = Resolve-Path "${toolsdir}/bzip2/bzip2.exe"
+          
+          # Global Variables
+          
+          Set-Variable -name "vmf" -value $vmf -Scope Global
+          Set-Variable -name "map_name" -value $map_name -Scope Global
+          Set-Variable -name "vmf_file" -value $vmf_file -Scope Global
+          Set-Variable -name "bsp_file" -value $bsp_file -Scope Global
+          
+          Set-Variable -name "mapdir" -value $mapdir -Scope Global
+          Set-Variable -name "depotdir" -value $depotdir -Scope Global
+          Set-Variable -name "toolsdir" -value $toolsdir -Scope Global
+          Set-Variable -name "bindir" -value $bindir -Scope Global
+          Set-Variable -name "gamedir" -value $gamedir -Scope Global
+          Set-Variable -name "sourcetest" -value $sourcetest -Scope Global
+          
+          Set-Variable -name "bsp_exe" -value $bsp_exe -Scope Global
+          Set-Variable -name "vis_exe" -value $vis_exe -Scope Global
+          Set-Variable -name "light_exe" -value $light_exe -Scope Global
+          Set-Variable -name "bspzip_exe" -value $bspzip_exe -Scope Global
+          Set-Variable -name "vpk_exe" -value $vpk_exe -Scope Global
+          
+          Set-Variable -name "cubemaps_exe" -value $cubemaps_exe -Scope Global
+          Set-Variable -name "bzip2_exe" -value $bzip2_exe -Scope Global
 
       - name: Download Tools
         id: download_tools
         uses: Amadevus/pwsh-script@v2.0.1
-        with:
-          script: |
-            $bzip2_url = ${{ env.BZ2_URL }}
-            $steamcmd_url = ${{ env.STEAMCMD_URL }}
-            $depotdownloader_url = ${{ env.DEPOTDOWNLOADER_URL }}
-
-            if (!(Test-Path -path "../bzip2.zip"))
-            {
-                Invoke-WebRequest $bzip2_url -O ../bzip2.zip
-                Expand-Archive ../bzip2.zip ../bzip2 -Force
-            }
-
-            if ($mode -eq "steamcmd")
-            {
-                if (!(Test-Path -path "../steamcmd.zip"))
-                {
-                    Invoke-WebRequest $steamcmd_url -O ../steamcmd.zip
-                    Expand-Archive ../steamcmd.zip ../steamcmd -Force
-                }
-                Invoke-Expression "../steamcmd/steamcmd.exe +force_install_dir ../depots/$steam_app +login $steam_username $steam_password +app_update $steam_app validate +quit"
-            }
-            if ($mode -eq "depotdownloader")
-            {
-                if (!(Test-Path -path "../depotdownloader.zip"))
-                {
-                    Invoke-WebRequest $depotdownloader_url -O ../depotdownloader.zip
-                    Expand-Archive ../depotdownloader.zip ../depotdownloader -Force
-                }
-                dotnet ../depotdownloader/DepotDownloader.dll -username $steam_username -password $steam_password -app $steam_app -dir ../depots/$steam_app
-            }
-
-            if ((Test-Path -path "../slammintools.zip"))
-            {
-                Expand-Archive ../slammintools.zip ../slammintools -Force
-            }
+        working-directory: ./tools/scripts
+        run: |
+          $mode = "${{ env.SOURCE_SDK_MODE }}"
+          
+          $bzip2_url = "${{ env.BZ2_URL }}"
+          $steamcmd_url = "${{ env.STEAMCMD_URL }}"
+          $depotdownloader_url = "${{ env.DEPOTDOWNLOADER_URL }}"
+          
+          if (!(Test-Path -path "../bzip2.zip"))
+          {
+              Invoke-WebRequest $bzip2_url -O ../bzip2.zip
+              Expand-Archive ../bzip2.zip ../bzip2 -Force
+          }
+          
+          if ($mode -eq "steamcmd")
+          {
+              if (!(Test-Path -path "../steamcmd.zip"))
+              {
+                  Invoke-WebRequest $steamcmd_url -O ../steamcmd.zip
+                  Expand-Archive ../steamcmd.zip ../steamcmd -Force
+              }
+              Invoke-Expression "../steamcmd/steamcmd.exe +force_install_dir ../depots/$steam_app +login $steam_username $steam_password +app_update $steam_app validate +quit"
+          }
+          if ($mode -eq "depotdownloader")
+          {
+              if (!(Test-Path -path "../depotdownloader.zip"))
+              {
+                  Invoke-WebRequest $depotdownloader_url -O ../depotdownloader.zip
+                  Expand-Archive ../depotdownloader.zip ../depotdownloader -Force
+              }
+              dotnet ../depotdownloader/DepotDownloader.dll -username $steam_username -password $steam_password -app $steam_app -dir ../depots/$steam_app
+          }
+          
+          if ((Test-Path -path "../slammintools.zip"))
+          {
+              Expand-Archive ../slammintools.zip ../slammintools -Force
+          }
 
       - name: Build
         id: build_map
         uses: Amadevus/pwsh-script@v2.0.1
-        with:
-          script: |
-            Copy-Item "src/maps/${{ steps.env_file.outputs.map_name }}.vmf" -Destination "src/maps/${{ steps.env_file.outputs.map_name }}_${{ github.ref_name }}.vmf"
-
-            $path = Resolve-Path "src/maps"
-            $file = "${{ steps.env_file.outputs.map_name }}_${{ github.ref_name }}.vmf"
-            $gamedir = Resolve-Path "tools/depots/${{ steps.env_file.outputs.steam_sdk_appid }}/${{ steps.env_file.outputs.game_name }}"
-            $bin_path = "tools/depots/${{ steps.env_file.outputs.steam_sdk_appid }}/bin"
-            $bsp_exe = Resolve-Path "$bin_path/vbsp.exe"
-            $vis_exe = Resolve-Path "$bin_path/vvis.exe"
-            $light_exe = Resolve-Path "$bin_path/vrad.exe"
-            $bzip2_exe = Resolve-Path "tools/bzip2/bzip2.exe"
-            $bsp_file = "${{ steps.env_file.outputs.map_name }}_${{ github.ref_name }}.bsp"
-
-            Invoke-Expression "$bsp_exe -game ""$gamedir"" ""$path/$file"""
-            Invoke-Expression "$vis_exe -fast -nosort -game ""$gamedir"" ""$path/$file"""
-            Invoke-Expression "$light_exe -fast -bounce 2 -game ""$gamedir"" ""$path/$file"""
-            Invoke-Expression "$bzip2_exe ""$path/$bsp_file"""
+        working-directory: ./tools/scripts
+        run: |
+          Invoke-Expression "${bsp_exe} -game '${gamedir}' '${mapdir}/${map_name}'"
+          Invoke-Expression "${vis_exe} -fast -nosort -game '${gamedir}' '${mapdir}/${map_name}'"
+          Invoke-Expression "${light_exe} -fast -bounce 2 -game '${gamedir}' '${mapdir}/${map_name}'"
+          
+          Invoke-Expression "${bzip2_exe} '${mapdir}/${bsp_file}' -f"
 
       - name: Upload Artifact (Result)
         id: upload_artifact_bz2
@@ -122,7 +166,6 @@ jobs:
           name: ${{ steps.env_file.outputs.map_name }}_${{ github.ref_name }}.bsp.bz2
           path: src/maps/${{ steps.env_file.outputs.map_name }}_${{ github.ref_name }}.bsp.bz2
           if-no-files-found: error
-
       - name: Upload Artifact (Trace)
         id: upload_artifact_trace
         uses: actions/upload-artifact@v3
