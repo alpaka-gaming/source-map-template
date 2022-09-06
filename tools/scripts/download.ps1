@@ -5,7 +5,7 @@ param(
 
 if ((Test-Path -path "_variables.private.ps1"))
 {
-    echo "Using private variables"
+    Write-Output "Using private variables"
     .\_variables.private.ps1
 }
 else

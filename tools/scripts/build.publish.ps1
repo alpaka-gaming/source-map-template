@@ -5,7 +5,7 @@ param(
 
 if ((Test-Path -path "_variables.private.ps1"))
 {
-    echo "Using private variables"
+    Write-Output "Using private variables"
     .\_variables.private.ps1
 }
 else
@@ -17,7 +17,7 @@ else
 
 Invoke-Expression "${bsp_exe} -game '${gamedir}' '${mapdir}/${map_name}'"
 Invoke-Expression "${vis_exe} -game '${gamedir}' '${mapdir}/${map_name}'"
-Invoke-Expression "${light_exe} -both -final -StaticPropLighting -StaticPropPolys -game '${gamedir}' '${mapdir}/${map_name}'"
+Invoke-Expression "${light_exe} -both -final -game '${gamedir}' '${mapdir}/${map_name}'"
 
 if (!(Test-Path -path "${gamedir}/maps")) {New-Item "${gamedir}/maps" -Type Directory}
 Copy-Item "${mapdir}/${bsp_file}" -Destination "${gamedir}/maps" -Force

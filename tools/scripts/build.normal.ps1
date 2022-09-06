@@ -5,15 +5,15 @@ param(
 
 if ((Test-Path -path "_variables.private.ps1"))
 {
-    echo "Using private variables"
-    ./_variables.private.ps1
+    Write-Output "Using private variables"
+    .\_variables.private.ps1
 }
 else
 {
-    ./_variables.ps1
+    .\_variables.ps1
 }
 
-./_paths.ps1
+.\_paths.ps1
 
 Invoke-Expression "${bsp_exe} -game '${gamedir}' '${mapdir}/${map_name}'"
 Invoke-Expression "${vis_exe} -game '${gamedir}' '${mapdir}/${map_name}'"
