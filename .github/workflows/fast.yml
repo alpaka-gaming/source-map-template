@@ -59,28 +59,38 @@ jobs:
         uses: Amadevus/pwsh-script@v2.0.1
         with:
           script: |
-            if (!(Test-Path -path "tools/bzip2.zip"))
+            $bzip2_url = ${{ env.BZ2_URL }}
+            $steamcmd_url = ${{ env.STEAMCMD_URL }}
+            $depotdownloader_url = ${{ env.DEPOTDOWNLOADER_URL }}
+
+            if (!(Test-Path -path "../bzip2.zip"))
             {
-              Invoke-WebRequest ${{ env.BZ2_URL }} -O tools/bzip2.zip
-              Expand-Archive tools/bzip2.zip tools/bzip2
+                Invoke-WebRequest $bzip2_url -O ../bzip2.zip
+                Expand-Archive ../bzip2.zip ../bzip2 -Force
             }
-            if ("${{ env.SOURCE_SDK_MODE }}" -eq "steamcmd")
+
+            if ($mode -eq "steamcmd")
             {
-                if (!(Test-Path -path "steamcmd.zip"))
+                if (!(Test-Path -path "../steamcmd.zip"))
                 {
-                    Invoke-WebRequest ${{ env.STEAMCMD_URL }} -O steamcmd.zip
-                    Expand-Archive steamcmd.zip steamcmd
+                    Invoke-WebRequest $steamcmd_url -O ../steamcmd.zip
+                    Expand-Archive ../steamcmd.zip ../steamcmd -Force
                 }
-                Invoke-Expression "steamcmd/steamcmd.exe +force_install_dir tools/depots/${{ steps.env_file.outputs.steam_sdk_appid }} +login ${{ secrets.STEAM_USERNAME }} ${{ secrets.STEAM_PASSWORD }} +app_update ${{ steps.env_file.outputs.steam_sdk_appid }} validate +quit"
+                Invoke-Expression "../steamcmd/steamcmd.exe +force_install_dir ../depots/$steam_app +login $steam_username $steam_password +app_update $steam_app validate +quit"
             }
-            if ("${{ env.SOURCE_SDK_MODE }}" -eq "depotdownloader")
+            if ($mode -eq "depotdownloader")
             {
-              if (!(Test-Path -path "tools/depotdownloader.zip"))
-              {
-                Invoke-WebRequest ${{ env.DEPOTDOWNLOADER_URL }} -O tools/depotdownloader.zip
-                Expand-Archive tools/depotdownloader.zip tools/depotdownloader
-                dotnet tools/depotdownloader/DepotDownloader.dll -username ${{ secrets.STEAM_USERNAME }} -password ${{ secrets.STEAM_PASSWORD }} -app ${{ steps.env_file.outputs.steam_sdk_appid }} -dir tools/depots/${{ steps.env_file.outputs.steam_sdk_appid }}
-              }
+                if (!(Test-Path -path "../depotdownloader.zip"))
+                {
+                    Invoke-WebRequest $depotdownloader_url -O ../depotdownloader.zip
+                    Expand-Archive ../depotdownloader.zip ../depotdownloader -Force
+                }
+                dotnet ../depotdownloader/DepotDownloader.dll -username $steam_username -password $steam_password -app $steam_app -dir ../depots/$steam_app
+            }
+
+            if ((Test-Path -path "../slammintools.zip"))
+            {
+                Expand-Archive ../slammintools.zip ../slammintools -Force
             }
 
       - name: Build
