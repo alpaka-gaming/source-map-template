@@ -5,9 +5,9 @@ $map_name = "${map}_${lastTag}"
 $vmf_file = "${map_name}.vmf"
 $bsp_file = "${map_name}.bsp"
 
+$toolsdir = Resolve-Path ".."
 $mapdir = Resolve-Path "../../src/maps"
 $depotdir = Resolve-Path "../depots"
-$toolsdir = Resolve-Path ".."
 $bindir = Resolve-Path "${depotdir}/${steam_app}/bin"
 $gamedir = Resolve-Path "${depotdir}/${steam_app}/${game_name}"
 $sourcetest = Resolve-Path "${depotdir}/${steam_app}/sourcetest"
@@ -41,7 +41,6 @@ Set-Variable -name "toolsdir" -value $toolsdir -Scope Global
 Set-Variable -name "bindir" -value $bindir -Scope Global
 Set-Variable -name "gamedir" -value $gamedir -Scope Global
 Set-Variable -name "sourcetest" -value $sourcetest -Scope Global
-
 
 Set-Variable -name "bsp_exe" -value $bsp_exe -Scope Global
 Set-Variable -name "vis_exe" -value $vis_exe -Scope Global
