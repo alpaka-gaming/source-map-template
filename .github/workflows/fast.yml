@@ -90,8 +90,8 @@ jobs:
             {
                 Expand-Archive ../slammintools.zip ../slammintools -Force
             }
-      - name: Export Paths
-        id: export_paths
+      - name: Build Map
+        id: build_map
         uses: Amadevus/pwsh-script@v2.0.1
         with:
           script: |
@@ -153,12 +153,7 @@ jobs:
             Set-Variable -name "cubemaps_exe" -value $cubemaps_exe -Scope Global
             Set-Variable -name "bzip2_exe" -value $bzip2_exe -Scope Global
 
-      - name: Build Map
-        id: build_map
-        uses: Amadevus/pwsh-script@v2.0.1
-        with:
-          script: |
-            cd tools/scripts
+            # Build
             
             Invoke-Expression "${bsp_exe} -game '${gamedir}' '${mapdir}/${map_name}'"
             Invoke-Expression "${vis_exe} -fast -nosort -game '${gamedir}' '${mapdir}/${map_name}'"
