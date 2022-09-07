@@ -39,7 +39,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: tools
-          key: ${{ secrets.STEAM_USERNAME }}-${{ steps.env_file.outputs.steam_sdk_appid }}
+          key: ${{ steps.env_file.outputs.game_name }}-${{ steps.env_file.outputs.steam_sdk_appid }}
       - name: Install .NET SDK
         id: install_dotnet_dsk
         if: ${{ env.SOURCE_SDK_MODE }} == "depotdownloader"
