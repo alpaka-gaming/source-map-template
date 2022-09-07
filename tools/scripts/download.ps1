@@ -31,7 +31,7 @@ if ($mode -eq "steamcmd")
         Invoke-WebRequest $steamcmd_url -O ../steamcmd.zip
         Expand-Archive ../steamcmd.zip ../steamcmd -Force
     }
-    Invoke-Expression "../steamcmd/steamcmd.exe +force_install_dir ../depots/$steam_app +login $steam_username $steam_password +app_update $steam_app validate +quit"
+    Invoke-Expression "../steamcmd/steamcmd.exe +force_install_dir ../depots/$steam_sdk_appid +login $steam_username $steam_password +app_update $steam_sdk_appid validate +quit"
 }
 if ($mode -eq "depotdownloader")
 {
@@ -40,7 +40,7 @@ if ($mode -eq "depotdownloader")
         Invoke-WebRequest $depotdownloader_url -O ../depotdownloader.zip
         Expand-Archive ../depotdownloader.zip ../depotdownloader -Force
     }
-    dotnet ../depotdownloader/DepotDownloader.dll -username $steam_username -password $steam_password -app $steam_app -dir ../depots/$steam_app
+    dotnet ../depotdownloader/DepotDownloader.dll -username $steam_username -password $steam_password -app $steam_sdk_appid -dir ../depots/$steam_sdk_appid
 }
 
 if ((Test-Path -path "../slammintools.zip"))

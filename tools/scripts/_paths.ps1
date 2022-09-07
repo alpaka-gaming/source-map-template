@@ -8,13 +8,13 @@ $bsp_file = "${map_name}.bsp"
 $toolsdir = Resolve-Path ".."
 $mapdir = Resolve-Path "../../src/maps"
 $depotdir = Resolve-Path "../depots"
-$bindir = Resolve-Path "${depotdir}/${steam_app}/bin"
-$gamedir = Resolve-Path "${depotdir}/${steam_app}/${game_name}"
-$sourcetest = Resolve-Path "${depotdir}/${steam_app}/sourcetest"
+$bindir = Resolve-Path "${depotdir}/${steam_sdk_appid}/bin"
+$gamedir = Resolve-Path "${depotdir}/${steam_sdk_appid}/${game_name}"
+$sourcetest = Resolve-Path "${depotdir}/${steam_sdk_appid}/sourcetest"
 
 Copy-Item "${mapdir}/${vmf}" "${mapdir}/${vmf_file}" -Force
 
-if ($steam_app -eq "243750") #HL2MP
+if ($steam_sdk_appid -eq "243750") #HL2MP
 {
     Copy-Item -Path "${toolsdir}/slammintools/mp/*" -Destination "${bindir}" -Force -Recurse
 }
