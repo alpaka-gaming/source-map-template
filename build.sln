@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".files", ".files", "{EBFBE9EC-8BBE-4080-86F3-201E68268029}"
+ProjectSection(SolutionItems) = preProject
+	.editorconfig = .editorconfig
+	.gitattributes = .gitattributes
+	.gitignore = .gitignore
+	CHANGELOG.md = CHANGELOG.md
+	LICENSE = LICENSE
+	README.md = README.md
+	.editoricon.png = .editoricon.png
+	global.json = global.json
+	build.cmd = build.cmd
+	build.ps1 = build.ps1
+	build.sh = build.sh
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{B0F8AC6D-88B6-4981-8987-AB4B0635482F}"
+	ProjectSection(SolutionItems) = preProject
+		.config\dotnet-tools.json = .config\dotnet-tools.json
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", ".build\_build.csproj", "{612B31CC-2D6D-44D6-9063-4FD8BF6BCC9B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{2712CD35-9B5B-4E27-BEAF-46978336F0DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Source.Nuke", ".build\Source.Nuke\Source.Nuke.csproj", "{1759B6D1-91E3-4B7E-AF42-775E99092FE5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{612B31CC-2D6D-44D6-9063-4FD8BF6BCC9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{612B31CC-2D6D-44D6-9063-4FD8BF6BCC9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1759B6D1-91E3-4B7E-AF42-775E99092FE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1759B6D1-91E3-4B7E-AF42-775E99092FE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1759B6D1-91E3-4B7E-AF42-775E99092FE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1759B6D1-91E3-4B7E-AF42-775E99092FE5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{612B31CC-2D6D-44D6-9063-4FD8BF6BCC9B} = {2712CD35-9B5B-4E27-BEAF-46978336F0DA}
+		{1759B6D1-91E3-4B7E-AF42-775E99092FE5} = {2712CD35-9B5B-4E27-BEAF-46978336F0DA}
+	EndGlobalSection
+EndGlobal
