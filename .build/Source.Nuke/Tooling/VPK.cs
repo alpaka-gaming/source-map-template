@@ -22,10 +22,6 @@ namespace Nuke.Common.Tools.Source.Tooling
 
 		}
 
-		public VPK(string executable) : base(executable)
-		{
-		}
-
 		/// <summary>
 		/// Keep (don't delete) input files
 		/// </summary>
@@ -38,6 +34,11 @@ namespace Nuke.Common.Tools.Source.Tooling
 				.Add("{value}", Input);
 			return base.ConfigureProcessArguments(arguments);
 		}
+
+	}
+
+	public static partial class Extensions
+	{
 
 	}
 }

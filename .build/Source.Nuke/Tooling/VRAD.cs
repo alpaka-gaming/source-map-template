@@ -15,7 +15,7 @@ namespace Nuke.Common.Tools.Source.Tooling
     [PublicAPI]
     [ExcludeFromCodeCoverage]
     [Serializable]
-    public class VRAD : Tools, IFastable
+    public class VRAD : Tools, ISlammin
     {
 
 	    public VRAD() : base("vrad.exe")
@@ -23,15 +23,11 @@ namespace Nuke.Common.Tools.Source.Tooling
 
 	    }
 
-	    public VRAD(string executable) : base(executable)
-	    {
-	    }
-
         /// <summary>
         /// Compiles quick low quality lighting. Used for quick previewing.
         /// Note: -fast will cause random and miscolored splotching to appear in darker areas. As well as shadowed edges around Displacements. It is advised to not ship your map using -fast.
         /// </summary>
-        public virtual bool? Fast { get; set; }
+        public override bool? Fast { get; internal set; }
 
         /// <summary>
         /// Set the maximum number of light ray bounces. (default: 100).
@@ -59,5 +55,42 @@ namespace Nuke.Common.Tools.Source.Tooling
             return base.ConfigureProcessArguments(arguments);
         }
 
+        public bool? UsingSlammin { get; set; }
+    }
+
+    public static partial class Extensions
+    {
+	    #region Bounce
+
+	    /// <summary>
+	    ///
+	    /// </summary>
+	    /// <param name="toolSettings"></param>
+	    /// <param name="bounce"></param>
+	    /// <typeparam name="T"></typeparam>
+	    /// <returns></returns>
+	    [Pure]
+	    public static T SetBounce<T>(this T toolSettings, ushort bounce) where T : VRAD
+	    {
+		    toolSettings = toolSettings.NewInstance();
+		    toolSettings.Bounce = bounce;
+		    return toolSettings;
+	    }
+
+	    /// <summary>
+	    ///
+	    /// </summary>
+	    /// <param name="toolSettings"></param>
+	    /// <typeparam name="T"></typeparam>
+	    /// <returns></returns>
+	    [Pure]
+	    public static T ResetBounce<T>(this T toolSettings) where T : VRAD
+	    {
+		    toolSettings = toolSettings.NewInstance();
+		    toolSettings.Bounce = null;
+		    return toolSettings;
+	    }
+
+	    #endregion
     }
 }

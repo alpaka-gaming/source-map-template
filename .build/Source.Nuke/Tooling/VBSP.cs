@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using Nuke.Common.Tooling;
+using Nuke.Common.Tools.Source.Interfaces;
 
 namespace Nuke.Common.Tools.Source.Tooling
 {
@@ -14,16 +15,12 @@ namespace Nuke.Common.Tools.Source.Tooling
     [PublicAPI]
     [ExcludeFromCodeCoverage]
     [Serializable]
-    public class VBSP : Tools
+    public class VBSP : Tools, ISlammin
     {
 
 	    public VBSP() : base("vbsp.exe")
 	    {
 
-	    }
-
-	    public VBSP(string executable) : base(executable)
-	    {
 	    }
 
 
@@ -93,6 +90,12 @@ namespace Nuke.Common.Tools.Source.Tooling
 		        .Add("{value}", Input);
             return base.ConfigureProcessArguments(arguments);
         }
+
+        public bool? UsingSlammin { get; set; }
+    }
+
+    public static partial class Extensions
+    {
 
     }
 }

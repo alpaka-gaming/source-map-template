@@ -15,7 +15,7 @@ namespace Nuke.Common.Tools.Source.Tooling
     [PublicAPI]
     [ExcludeFromCodeCoverage]
     [Serializable]
-    public class VVIS : Tools, IFastable
+    public class VVIS : Tools, ISlammin
     {
 
 	    public VVIS() : base("vvis.exe")
@@ -23,14 +23,11 @@ namespace Nuke.Common.Tools.Source.Tooling
 
 	    }
 
-	    public VVIS(string executable) : base(executable)
-	    {
-	    }
 
         /// <summary>
         /// Only do a quick first pass. Does not actually test visibility.
         /// </summary>
-        public virtual bool? Fast { get; set; }
+        public override bool? Fast { get; internal set; }
 
         /// <summary>
         /// Force a maximum vis radius, in units, regardless of whether an env_fog_controller specifies one.
@@ -77,5 +74,87 @@ namespace Nuke.Common.Tools.Source.Tooling
             return base.ConfigureProcessArguments(arguments);
         }
 
+        public bool? UsingSlammin { get; set; }
     }
+
+    public static partial class Extensions
+    {
+
+        #region NoSort
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="toolSettings"></param>
+        /// <param name="nosort"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        [Pure]
+        public static T SetNoSort<T>(this T toolSettings, bool? nosort) where T : VVIS
+        {
+	        toolSettings = toolSettings.NewInstance();
+	        toolSettings.NoSort = nosort;
+	        return toolSettings;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="toolSettings"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        [Pure]
+        public static T ResetNoSort<T>(this T toolSettings) where T : VVIS
+        {
+	        toolSettings = toolSettings.NewInstance();
+	        toolSettings.NoSort = null;
+	        return toolSettings;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="toolSettings"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        [Pure]
+        public static T EnableNoSort<T>(this T toolSettings) where T : VVIS
+        {
+	        toolSettings = toolSettings.NewInstance();
+	        toolSettings.NoSort = true;
+	        return toolSettings;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="toolSettings"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        [Pure]
+        public static T DisableNoSort<T>(this T toolSettings) where T : VVIS
+        {
+	        toolSettings = toolSettings.NewInstance();
+	        toolSettings.NoSort = false;
+	        return toolSettings;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="toolSettings"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        [Pure]
+        public static T ToggleNoSort<T>(this T toolSettings) where T : VVIS
+        {
+	        toolSettings = toolSettings.NewInstance();
+	        toolSettings.NoSort = !toolSettings.NoSort;
+	        return toolSettings;
+        }
+
+        #endregion
+
+    }
+
 }

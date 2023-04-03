@@ -23,10 +23,6 @@ namespace Nuke.Common.Tools.Source.Tooling
 
 		}
 
-		public CUBEMAP(string executable) : base(executable)
-		{
-		}
-
 		public override string ProcessToolPath => Path.Combine(Game, "..", Executable);
 
 		public int MatSpecular { get; internal set; } = 0;
@@ -52,6 +48,77 @@ namespace Nuke.Common.Tools.Source.Tooling
 				.Add("-buildcubemaps");
 			return base.ConfigureProcessArguments(arguments);
 		}
+
+	}
+
+	public static partial class Extensions
+	{
+
+		#region MatSpecular
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="toolSettings"></param>
+		/// <param name="matspecular"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		[Pure]
+		public static T SetMatSpecular<T>(this T toolSettings, int matspecular) where T : CUBEMAP
+		{
+			toolSettings = toolSettings.NewInstance();
+			toolSettings.MatSpecular = matspecular;
+			return toolSettings;
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="toolSettings"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		[Pure]
+		public static T ResetMatSpecular<T>(this T toolSettings) where T : CUBEMAP
+		{
+			toolSettings = toolSettings.NewInstance();
+			toolSettings.MatSpecular = 0;
+			return toolSettings;
+		}
+
+		#endregion
+
+		#region MatSpecular
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="toolSettings"></param>
+		/// <param name="mathdrlevel"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		[Pure]
+		public static T ResetMatHDRLevel<T>(this T toolSettings, int mathdrlevel) where T : CUBEMAP
+		{
+			toolSettings = toolSettings.NewInstance();
+			toolSettings.MatHdrLevel = mathdrlevel;
+			return toolSettings;
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="toolSettings"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		[Pure]
+		public static T ResetMatHDRLevel<T>(this T toolSettings) where T : CUBEMAP
+		{
+			toolSettings = toolSettings.NewInstance();
+			toolSettings.MatHdrLevel = 2;
+			return toolSettings;
+		}
+
+		#endregion
 
 	}
 }

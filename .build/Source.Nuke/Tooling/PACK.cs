@@ -23,11 +23,6 @@ namespace Nuke.Common.Tools.Source.Tooling
 
 		}
 
-		public PACK(string executable) : base(executable)
-		{
-
-		}
-
 		public string FileList { get; internal set; }
 
 		/// <summary>
@@ -53,5 +48,41 @@ namespace Nuke.Common.Tools.Source.Tooling
 			return base.ConfigureProcessArguments(arguments);
 		}
 
+	}
+
+	public static partial class Extensions
+	{
+		#region FileList
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="toolSettings"></param>
+		/// <param name="fileList"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		[Pure]
+		public static T SetFileList<T>(this T toolSettings, string fileList) where T : PACK
+		{
+			toolSettings = toolSettings.NewInstance();
+			toolSettings.FileList = fileList;
+			return toolSettings;
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="toolSettings"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		[Pure]
+		public static T ResetFileList<T>(this T toolSettings) where T : PACK
+		{
+			toolSettings = toolSettings.NewInstance();
+			toolSettings.FileList = null;
+			return toolSettings;
+		}
+
+		#endregion
 	}
 }

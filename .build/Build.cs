@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
@@ -25,13 +26,21 @@ class Build : NukeBuild
 	///   - JetBrains Rider            https://nuke.build/rider
 	///   - Microsoft VisualStudio     https://nuke.build/visualstudio
 	///   - Microsoft VSCode           https://nuke.build/vscode
-	public static int Main() => Execute<Build>(x => x.Compile);
+	public static int Main() => Execute<Build>(x => x.Publish);
 
 	[Parameter("Configuration to build - Default is 'Fast' (local) or 'Publish' (server)")]
+#if !DEBUG
+	readonly Configuration Configuration = IsLocalBuild ? Configuration.Fast : Configuration.Publish;
+#else
 	readonly Configuration Configuration = !IsLocalBuild ? Configuration.Fast : Configuration.Publish;
+#endif
 
 	[Parameter("Environment to build - Default is 'Development' (local) or 'Production' (server)")]
+#if !DEBUG
+	public string Environment = !IsLocalBuild ? "Development" : "Production";
+#else
 	public string Environment = IsLocalBuild ? "Development" : "Production";
+#endif
 
 	[Solution]
 	public readonly Solution Solution;
@@ -48,8 +57,6 @@ class Build : NukeBuild
 
 	#region Privates
 
-	IList<Tool> _tools;
-
 	long _steam_sdk_appid;
 	string _game_name;
 	string _map_name;
@@ -58,6 +65,7 @@ class Build : NukeBuild
 	string _source_sdk_mode;
 	string _last_tag;
 	string _install_dir;
+	string _depot_dir;
 	string _source_file;
 	string _vmf_file;
 	string _bsp_file;
@@ -98,9 +106,6 @@ class Build : NukeBuild
 			if (string.IsNullOrWhiteSpace(_steam_username)) _steam_username = config.GetValue<string>("definitions:STEAM_USERNAME");
 			if (string.IsNullOrWhiteSpace(_steam_password)) _steam_password = config.GetValue<string>("definitions:STEAM_PASSWORD");
 
-			_tools = new List<Tool>();
-			config.Bind("tools", _tools);
-
 			try
 			{
 				using (var gitTag = new Process() {StartInfo = new ProcessStartInfo(fileName: "git", arguments: "tag --sort=-v:refname") {WorkingDirectory = Solution.Directory, RedirectStandardOutput = true, UseShellExecute = false}})
@@ -121,6 +126,7 @@ class Build : NukeBuild
 			_vmf_file = Path.Combine(ArtifactsDirectory, $"{_map_name}_{_last_tag}.vmf");
 			_bsp_file = Path.Combine(ArtifactsDirectory, $"{_map_name}_{_last_tag}.bsp");
 
+			_depot_dir = Path.Combine(ToolDirectory, "depots");
 			_install_dir = Path.Combine(ToolDirectory, "depots", _steam_sdk_appid.ToString());
 			_game_dir = Path.Combine(_install_dir, _game_name);
 
@@ -138,46 +144,26 @@ class Build : NukeBuild
 		.DependsOn(Prepare)
 		.Executes(() =>
 		{
-			foreach (var tool in _tools)
-			{
-				var fileName = Path.GetFileName(tool.url);
-				var localFile = Path.Combine(ToolDirectory, fileName);
-				var localDir = Path.Combine(ToolDirectory, tool.name);
-				if (!File.Exists(localFile))
-				{
-					using (var client = new HttpClient())
-					{
-						var response = client.Send(new HttpRequestMessage(HttpMethod.Get, tool.url));
-						using var resultStream = response.Content.ReadAsStream();
-						using var fileStream = File.OpenWrite(localFile);
-						resultStream.CopyTo(fileStream);
-					}
-				}
-				if (File.Exists(localFile) && !Directory.Exists(localDir))
-				{
-					ZipFile.ExtractToDirectory(localFile, localDir);
-				}
-			}
 
 			if (_source_sdk_mode == "steamcmd")
 			{
-				var process = new Process();
-				process.StartInfo = new ProcessStartInfo(Path.Combine(ToolDirectory, "steamcmd", "steamcmd.exe")) {Arguments = $"+force_install_dir {_install_dir} +login {_steam_username} {_steam_password} +app_update {_steam_sdk_appid} validate +quit"};
+				Source(_ => new STEAMCMD()
+					.SetProcessWorkingDirectory(ArtifactsDirectory)
+					.SetVerbose(Verbose)
+					.SetAppId(_steam_sdk_appid)
+					.SetCredential(new NetworkCredential(_steam_username, _steam_password))
+					.EnableValidate()
+					.SetForceInstallDir(_depot_dir));
 			}
 			else if (_source_sdk_mode == "depotdownloader")
 			{
-				var process = new Process();
-				process.StartInfo = new ProcessStartInfo("dotnet") {Arguments = $"{Path.Combine(ToolDirectory, "depotdownloader", "DepotDownloader.dll")} -username {_steam_username} -password {_steam_password} -app {_steam_sdk_appid} -dir {_install_dir}"};
-			}
-
-			var mp_games = new long[] {243750};
-			if (mp_games.Contains(_steam_sdk_appid))
-			{
-				if (_tools.Any(m => m.name == "slammintools"))
-				{
-					var sourceDir = new DirectoryInfo(Path.Combine(ToolDirectory, "slammintools", "mp"));
-					sourceDir.CopyAll(new DirectoryInfo(_bin_dir), true);
-				}
+				Source(_ => new DEPOTDOWNLOADER()
+					.SetProcessWorkingDirectory(ArtifactsDirectory)
+					.SetVerbose(Verbose)
+					.SetAppId(_steam_sdk_appid)
+					.SetUsername(_steam_username)
+					.SetPassword(_steam_password)
+					.SetInstallDir(_depot_dir));
 			}
 
 		});
@@ -192,33 +178,41 @@ class Build : NukeBuild
 			Source(_ => new VBSP()
 				.SetProcessWorkingDirectory(ArtifactsDirectory)
 				.SetVerbose(Verbose)
+				.SetAppId(_steam_sdk_appid)
 				.SetGamePath(_game_dir)
 				.SetInput(_vmf_file)
+				.EnableUsingSlammin()
 			);
 
 			Source(_ => new VVIS()
 				.SetProcessWorkingDirectory(ArtifactsDirectory)
 				.SetVerbose(Verbose)
+				.SetAppId(_steam_sdk_appid)
 				.SetGamePath(_game_dir)
 				//
 				.SetFast(Configuration == Configuration.Fast)
 				.SetNoSort(Configuration == Configuration.Fast)
 				//
 				.SetInput(_bsp_file)
+				.EnableUsingSlammin()
 			);
 
 			Source(_ => new VRAD()
 				.SetProcessWorkingDirectory(ArtifactsDirectory)
 				.SetVerbose(Verbose)
+				.SetAppId(_steam_sdk_appid)
 				.SetGamePath(_game_dir)
 				//
 				.SetFast(Configuration == Configuration.Fast)
 				.SetBounce((ushort)(Configuration == Configuration.Fast ? 2 : 100))
 				//
 				.SetInput(_bsp_file)
+				.EnableUsingSlammin()
 			);
 
+#if !DEBUG
 			File.Delete(_vmf_file);
+#endif
 
 			if (Configuration != Configuration.Fast)
 			{
@@ -228,6 +222,7 @@ class Build : NukeBuild
 				Source(_ => new CUBEMAP()
 					.SetProcessWorkingDirectory(ArtifactsDirectory)
 					.SetVerbose(Verbose)
+					.SetAppId(_steam_sdk_appid)
 					.SetGamePath(_game_dir)
 					.SetInput(_bsp_file)
 				);
@@ -236,6 +231,8 @@ class Build : NukeBuild
 				Source(_ => new PACK()
 					.SetProcessWorkingDirectory(ArtifactsDirectory)
 					.SetVerbose(Verbose)
+					.SetAppId(_steam_sdk_appid)
+					.SetGamePath(_game_dir)
 					.SetInput(_bsp_game_target_file)
 					.SetOutput(Path.ChangeExtension(_bsp_game_target_file, "log"))
 					.SetCallback(() =>
@@ -249,11 +246,15 @@ class Build : NukeBuild
 				Source(_ => new PACK()
 					.SetProcessWorkingDirectory(ArtifactsDirectory)
 					.SetVerbose(Verbose)
+					.SetAppId(_steam_sdk_appid)
+					.SetGamePath(_game_dir)
 					.SetInput(_bsp_game_target_file)
 					.SetFileList(bspzip_logs)
 					.SetCallback(() =>
 					{
+#if !DEBUG
 						File.Delete(bspzip_logs);
+#endif
 						File.Move(Path.ChangeExtension(_bsp_game_target_file, "bzp"), Path.ChangeExtension(_bsp_game_target_file, "bsp"), true);
 					})
 				);
@@ -286,7 +287,9 @@ class Build : NukeBuild
 			Source(_ => new BZIP()
 				.SetProcessWorkingDirectory(PublishDirectory)
 				.SetVerbose(Verbose)
-				.SetGamePath(Path.Combine(ToolDirectory, "bzip2"))
+				.SetAppId(_steam_sdk_appid)
+				.SetGamePath(_game_dir)
+				//.SetGamePath(Path.Combine(ToolDirectory, "bzip2"))
 				//
 				.EnableForce()
 				.EnableKeep()
@@ -295,11 +298,4 @@ class Build : NukeBuild
 			);
 
 		});
-}
-
-public class Tool
-{
-	public string name { get; set; }
-	public string version { get; set; }
-	public string url { get; set; }
 }

@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
+using System.Net;
 using System.Net.Http;
 using JetBrains.Annotations;
 using Nuke.Common.Tooling;
@@ -18,20 +19,24 @@ namespace Nuke.Common.Tools.Source.Tooling
 	[PublicAPI]
 	[ExcludeFromCodeCoverage]
 	[Serializable]
-	public class BZIP : Tools, IDownloadable
+	public class STEAMCMD : Tools, IDownloadable
 	{
 
-		public BZIP() : base("bzip2.exe")
+		public STEAMCMD() : base("steamcmd.exe")
 		{
 
 		}
+
+		public override string ProcessToolPath => Path.Combine(ForceInstallDir, Executable);
 
 		/// <summary>
 		/// Overwrite existing output files
 		/// </summary>
 		public virtual bool? Force { get; internal set; }
 
-		public virtual bool Keep { get; internal set; } = true;
+		public virtual NetworkCredential Credential { get; internal set; }
+		public virtual bool? Validate { get; internal set; }
+		public virtual string ForceInstallDir { get; internal set; }
 
 		/// <summary>
 		/// Keep (don't delete) input files
@@ -41,16 +46,15 @@ namespace Nuke.Common.Tools.Source.Tooling
 		protected override Arguments ConfigureProcessArguments(Arguments arguments)
 		{
 			arguments
-				.Add("--verbose", Verbose)
-				//
-				.Add("--force", Force)
-				.Add("--keep", Keep)
-				//
-				.Add("{value}", Input);
+				.Add("+login {value}", $"{Credential.UserName} {Credential.Password}")
+				.Add("app_update {value}", AppId)
+				.Add("validate", Validate)
+				.Add("+force_install_dir {value}", Path.Combine(ForceInstallDir, AppId.ToString()))
+				.Add("+quit");
 			return base.ConfigureProcessArguments(arguments);
 		}
 
-		public string Url => "https://github.com/philr/bzip2-windows/releases/download/v1.0.8.0/bzip2-1.0.8.0-win-x64.zip";
+		public string Url => "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip";
 		public bool Download()
 		{
 			var localFile = string.Empty;
@@ -63,7 +67,7 @@ namespace Nuke.Common.Tools.Source.Tooling
 				if (!string.IsNullOrWhiteSpace(toolPath))
 				{
 					localFile = Path.Combine(toolPath, fileName);
-					localDir = toolPath;
+					localDir = Path.Combine(toolPath, GetType().Name.ToLower());
 				}
 				if (string.IsNullOrWhiteSpace(localFile)) return false;
 				if (!File.Exists(localFile))
@@ -87,20 +91,54 @@ namespace Nuke.Common.Tools.Source.Tooling
 
 	public static partial class Extensions
 	{
-		#region Force
+
+		#region Credential
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="toolSettings"></param>
+		/// <param name="credential"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		[Pure]
+		public static T SetCredential<T>(this T toolSettings, NetworkCredential credential) where T : STEAMCMD
+		{
+			toolSettings = toolSettings.NewInstance();
+			toolSettings.Credential = credential;
+			return toolSettings;
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="toolSettings"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		[Pure]
+		public static T ResetCredential<T>(this T toolSettings) where T : STEAMCMD
+		{
+			toolSettings = toolSettings.NewInstance();
+			toolSettings.Credential = null;
+			return toolSettings;
+		}
+
+		#endregion
+
+		 #region Validate
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="toolSettings"></param>
-        /// <param name="force"></param>
+        /// <param name="validate"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         [Pure]
-        public static T SetForce<T>(this T toolSettings, bool? force) where T : BZIP
+        public static T SetValidate<T>(this T toolSettings, bool? validate) where T : STEAMCMD
         {
 	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Force = force;
+	        toolSettings.Validate = validate;
 	        return toolSettings;
         }
 
@@ -111,10 +149,10 @@ namespace Nuke.Common.Tools.Source.Tooling
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         [Pure]
-        public static T ResetForce<T>(this T toolSettings) where T : BZIP
+        public static T ResetValidate<T>(this T toolSettings) where T : STEAMCMD
         {
 	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Force = null;
+	        toolSettings.Validate = null;
 	        return toolSettings;
         }
 
@@ -125,10 +163,10 @@ namespace Nuke.Common.Tools.Source.Tooling
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         [Pure]
-        public static T EnableForce<T>(this T toolSettings) where T : BZIP
+        public static T EnableValidate<T>(this T toolSettings) where T : STEAMCMD
         {
 	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Force = true;
+	        toolSettings.Validate = true;
 	        return toolSettings;
         }
 
@@ -139,10 +177,10 @@ namespace Nuke.Common.Tools.Source.Tooling
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         [Pure]
-        public static T DisableForce<T>(this T toolSettings) where T : BZIP
+        public static T DisableValidate<T>(this T toolSettings) where T : STEAMCMD
         {
 	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Force = false;
+	        toolSettings.Validate = false;
 	        return toolSettings;
         }
 
@@ -153,89 +191,47 @@ namespace Nuke.Common.Tools.Source.Tooling
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         [Pure]
-        public static T ToggleForce<T>(this T toolSettings) where T : BZIP
+        public static T ToggleValidate<T>(this T toolSettings) where T : STEAMCMD
         {
 	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Force = !toolSettings.Force;
-	        return toolSettings;
-        }
-
-        #endregion
-
-        #region Keep
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <param name="keep"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T SetKeep<T>(this T toolSettings, bool keep) where T : BZIP
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Keep = keep;
-	        return toolSettings;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T ResetKeep<T>(this T toolSettings) where T : BZIP
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Keep = true;
-	        return toolSettings;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T EnableKeep<T>(this T toolSettings) where T : BZIP
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Keep = true;
-	        return toolSettings;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T DisableKeep<T>(this T toolSettings) where T : BZIP
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Keep = false;
-	        return toolSettings;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T ToggleKeep<T>(this T toolSettings) where T : BZIP
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Keep = !toolSettings.Keep;
+	        toolSettings.Validate = !toolSettings.Validate;
 	        return toolSettings;
         }
 
         #endregion
+
+		#region InstallDir
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="toolSettings"></param>
+		/// <param name="forceInstallDir"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		[Pure]
+		public static T SetForceInstallDir<T>(this T toolSettings, string forceInstallDir) where T : STEAMCMD
+		{
+			toolSettings = toolSettings.NewInstance();
+			toolSettings.ForceInstallDir = forceInstallDir;
+			return toolSettings;
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="toolSettings"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		[Pure]
+		public static T ResetForceInstallDir<T>(this T toolSettings) where T : STEAMCMD
+		{
+			toolSettings = toolSettings.NewInstance();
+			toolSettings.ForceInstallDir = null;
+			return toolSettings;
+		}
+
+		#endregion
 
 	}
 }

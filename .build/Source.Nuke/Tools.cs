@@ -42,6 +42,8 @@ namespace Nuke.Common.Tools.Source
 		/// </summary>
 		public virtual string Game { get; internal set; }
 
+		public virtual long AppId { get; internal set; }
+
 		/// <summary>
 		///
 		/// </summary>
@@ -72,6 +74,7 @@ namespace Nuke.Common.Tools.Source
 		/// </summary>
 		public virtual string VProject { get; internal set; }
 
+		public virtual bool? Fast { get; internal set; }
 		public virtual bool Skip { get; internal set; }
 
 	}

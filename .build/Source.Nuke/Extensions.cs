@@ -4,7 +4,6 @@ using System;
 using JetBrains.Annotations;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.Source.Interfaces;
-using Nuke.Common.Tools.Source.Tooling;
 
 namespace Nuke.Common.Tools.Source
 {
@@ -193,6 +192,39 @@ namespace Nuke.Common.Tools.Source
 
 		#endregion
 
+		#region Game
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="toolSettings"></param>
+		/// <param name="appId"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		[Pure]
+		public static T SetAppId<T>(this T toolSettings, long appId) where T : Tools
+		{
+			toolSettings = toolSettings.NewInstance();
+			toolSettings.AppId = appId;
+			return toolSettings;
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="toolSettings"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		[Pure]
+		public static T ResetAppId<T>(this T toolSettings) where T : Tools
+		{
+			toolSettings = toolSettings.NewInstance();
+			toolSettings.AppId = 0;
+			return toolSettings;
+		}
+
+		#endregion
+
 		#region Input
 
 		/// <summary>
@@ -287,39 +319,6 @@ namespace Nuke.Common.Tools.Source
 		{
 			toolSettings = toolSettings.NewInstance();
 			toolSettings.Callback = null;
-			return toolSettings;
-		}
-
-		#endregion
-
-		#region FileList
-
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="toolSettings"></param>
-		/// <param name="fileList"></param>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		[Pure]
-		public static T SetFileList<T>(this T toolSettings, string fileList) where T : PACK
-		{
-			toolSettings = toolSettings.NewInstance();
-			toolSettings.FileList = fileList;
-			return toolSettings;
-		}
-
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="toolSettings"></param>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		[Pure]
-		public static T ResetFileList<T>(this T toolSettings) where T : PACK
-		{
-			toolSettings = toolSettings.NewInstance();
-			toolSettings.FileList = null;
 			return toolSettings;
 		}
 
@@ -476,7 +475,7 @@ namespace Nuke.Common.Tools.Source
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         [Pure]
-        public static T SetFast<T>(this T toolSettings, bool? fast) where T : Tools, IFastable
+        public static T SetFast<T>(this T toolSettings, bool? fast) where T : Tools
         {
 	        toolSettings = toolSettings.NewInstance();
 	        toolSettings.Fast = fast;
@@ -490,7 +489,7 @@ namespace Nuke.Common.Tools.Source
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         [Pure]
-        public static T ResetFast<T>(this T toolSettings) where T : Tools, IFastable
+        public static T ResetFast<T>(this T toolSettings) where T : Tools
         {
 	        toolSettings = toolSettings.NewInstance();
 	        toolSettings.Fast = null;
@@ -504,7 +503,7 @@ namespace Nuke.Common.Tools.Source
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         [Pure]
-        public static T EnableFast<T>(this T toolSettings) where T : Tools, IFastable
+        public static T EnableFast<T>(this T toolSettings) where T : Tools
         {
 	        toolSettings = toolSettings.NewInstance();
 	        toolSettings.Fast = true;
@@ -518,7 +517,7 @@ namespace Nuke.Common.Tools.Source
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         [Pure]
-        public static T DisableFast<T>(this T toolSettings) where T : Tools, IFastable
+        public static T DisableFast<T>(this T toolSettings) where T : Tools
         {
 	        toolSettings = toolSettings.NewInstance();
 	        toolSettings.Fast = false;
@@ -532,7 +531,7 @@ namespace Nuke.Common.Tools.Source
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         [Pure]
-        public static T ToggleFast<T>(this T toolSettings) where T : Tools, IFastable
+        public static T ToggleFast<T>(this T toolSettings) where T : Tools
         {
 	        toolSettings = toolSettings.NewInstance();
 	        toolSettings.Fast = !toolSettings.Fast;
@@ -541,20 +540,20 @@ namespace Nuke.Common.Tools.Source
 
         #endregion
 
-        #region Force
+        #region SlamminTools
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="toolSettings"></param>
-        /// <param name="force"></param>
+        /// <param name="usingSlammin"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         [Pure]
-        public static T SetForce<T>(this T toolSettings, bool? force) where T : BZIP
+        public static T SetUsingSlammin<T>(this T toolSettings, bool? usingSlammin) where T : Tools, ISlammin
         {
 	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Force = force;
+	        toolSettings.UsingSlammin = usingSlammin;
 	        return toolSettings;
         }
 
@@ -565,10 +564,10 @@ namespace Nuke.Common.Tools.Source
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         [Pure]
-        public static T ResetForce<T>(this T toolSettings) where T : BZIP
+        public static T ResetUsingSlammin<T>(this T toolSettings) where T : Tools, ISlammin
         {
 	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Force = null;
+	        toolSettings.UsingSlammin = null;
 	        return toolSettings;
         }
 
@@ -579,10 +578,10 @@ namespace Nuke.Common.Tools.Source
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         [Pure]
-        public static T EnableForce<T>(this T toolSettings) where T : BZIP
+        public static T EnableUsingSlammin<T>(this T toolSettings) where T : Tools, ISlammin
         {
 	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Force = true;
+	        toolSettings.UsingSlammin = true;
 	        return toolSettings;
         }
 
@@ -593,10 +592,10 @@ namespace Nuke.Common.Tools.Source
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         [Pure]
-        public static T DisableForce<T>(this T toolSettings) where T : BZIP
+        public static T DisableUsingSlammin<T>(this T toolSettings) where T : Tools, ISlammin
         {
 	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Force = false;
+	        toolSettings.UsingSlammin = false;
 	        return toolSettings;
         }
 
@@ -607,259 +606,10 @@ namespace Nuke.Common.Tools.Source
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         [Pure]
-        public static T ToggleForce<T>(this T toolSettings) where T : BZIP
+        public static T ToggleUsingSlammin<T>(this T toolSettings) where T : Tools, ISlammin
         {
 	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Force = !toolSettings.Force;
-	        return toolSettings;
-        }
-
-        #endregion
-
-        #region Keep
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <param name="keep"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T SetKeep<T>(this T toolSettings, bool keep) where T : BZIP
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Keep = keep;
-	        return toolSettings;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T ResetKeep<T>(this T toolSettings) where T : BZIP
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Keep = true;
-	        return toolSettings;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T EnableKeep<T>(this T toolSettings) where T : BZIP
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Keep = true;
-	        return toolSettings;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T DisableKeep<T>(this T toolSettings) where T : BZIP
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Keep = false;
-	        return toolSettings;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T ToggleKeep<T>(this T toolSettings) where T : BZIP
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Keep = !toolSettings.Keep;
-	        return toolSettings;
-        }
-
-        #endregion
-
-        #region Bounce
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <param name="bounce"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T SetBounce<T>(this T toolSettings, ushort bounce) where T : VRAD
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Bounce = bounce;
-	        return toolSettings;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T ResetBounce<T>(this T toolSettings) where T : VRAD
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Bounce = null;
-	        return toolSettings;
-        }
-
-        #endregion
-
-        #region NoSort
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <param name="nosort"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T SetNoSort<T>(this T toolSettings, bool? nosort) where T : VVIS
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.NoSort = nosort;
-	        return toolSettings;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T ResetNoSort<T>(this T toolSettings) where T : VVIS
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.NoSort = null;
-	        return toolSettings;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T EnableNoSort<T>(this T toolSettings) where T : VVIS
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.NoSort = true;
-	        return toolSettings;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T DisableNoSort<T>(this T toolSettings) where T : VVIS
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.NoSort = false;
-	        return toolSettings;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T ToggleNoSort<T>(this T toolSettings) where T : VVIS
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.NoSort = !toolSettings.NoSort;
-	        return toolSettings;
-        }
-
-        #endregion
-
-        #region MatSpecular
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <param name="matspecular"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T SetMatSpecular<T>(this T toolSettings, int matspecular) where T : CUBEMAP
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.MatSpecular = matspecular;
-	        return toolSettings;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T ResetMatSpecular<T>(this T toolSettings) where T : CUBEMAP
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.MatSpecular = 0;
-	        return toolSettings;
-        }
-
-        #endregion
-
-        #region MatSpecular
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <param name="mathdrlevel"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T ResetMatHDRLevel<T>(this T toolSettings, int mathdrlevel) where T : CUBEMAP
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.MatHdrLevel = mathdrlevel;
-	        return toolSettings;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T ResetMatHDRLevel<T>(this T toolSettings) where T : CUBEMAP
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.MatHdrLevel = 2;
+	        toolSettings.UsingSlammin = !toolSettings.UsingSlammin;
 	        return toolSettings;
         }
 
