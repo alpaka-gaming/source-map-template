@@ -125,80 +125,80 @@ namespace Nuke.Common.Tools.Source.Tooling
 
 		#endregion
 
-		 #region Validate
+		#region Validate
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <param name="validate"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T SetValidate<T>(this T toolSettings, bool? validate) where T : STEAMCMD
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Validate = validate;
-	        return toolSettings;
-        }
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="toolSettings"></param>
+		/// <param name="validate"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		[Pure]
+		public static T SetValidate<T>(this T toolSettings, bool? validate) where T : STEAMCMD
+		{
+			toolSettings = toolSettings.NewInstance();
+			toolSettings.Validate = validate;
+			return toolSettings;
+		}
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T ResetValidate<T>(this T toolSettings) where T : STEAMCMD
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Validate = null;
-	        return toolSettings;
-        }
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="toolSettings"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		[Pure]
+		public static T ResetValidate<T>(this T toolSettings) where T : STEAMCMD
+		{
+			toolSettings = toolSettings.NewInstance();
+			toolSettings.Validate = null;
+			return toolSettings;
+		}
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T EnableValidate<T>(this T toolSettings) where T : STEAMCMD
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Validate = true;
-	        return toolSettings;
-        }
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="toolSettings"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		[Pure]
+		public static T EnableValidate<T>(this T toolSettings) where T : STEAMCMD
+		{
+			toolSettings = toolSettings.NewInstance();
+			toolSettings.Validate = true;
+			return toolSettings;
+		}
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T DisableValidate<T>(this T toolSettings) where T : STEAMCMD
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Validate = false;
-	        return toolSettings;
-        }
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="toolSettings"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		[Pure]
+		public static T DisableValidate<T>(this T toolSettings) where T : STEAMCMD
+		{
+			toolSettings = toolSettings.NewInstance();
+			toolSettings.Validate = false;
+			return toolSettings;
+		}
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="toolSettings"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        [Pure]
-        public static T ToggleValidate<T>(this T toolSettings) where T : STEAMCMD
-        {
-	        toolSettings = toolSettings.NewInstance();
-	        toolSettings.Validate = !toolSettings.Validate;
-	        return toolSettings;
-        }
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="toolSettings"></param>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		[Pure]
+		public static T ToggleValidate<T>(this T toolSettings) where T : STEAMCMD
+		{
+			toolSettings = toolSettings.NewInstance();
+			toolSettings.Validate = !toolSettings.Validate;
+			return toolSettings;
+		}
 
-        #endregion
+		#endregion
 
 		#region InstallDir
 

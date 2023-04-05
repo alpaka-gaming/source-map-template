@@ -126,14 +126,6 @@ class Build : NukeBuild
 			_install_dir = Path.Combine(ToolDirectory, "depots", _steam_sdk_appid.ToString());
 			_game_dir = Path.Combine(_install_dir, _game_name);
 
-			//_bin_dir = Path.Combine(_install_dir, "bin");
-
-			var _game_bin_dir = new DirectoryInfo(Path.Combine(_install_dir, _game_name, "bin"));
-			var _sourcetest_bin_dir = new DirectoryInfo(Path.Combine(_install_dir, "sourcetest", "bin"));
-
-			if (!_game_bin_dir.Exists) _game_bin_dir.Create();
-			_sourcetest_bin_dir.CopyAll(_game_bin_dir, true);
-
 		});
 
 	Target Restore => _ => _
@@ -161,6 +153,12 @@ class Build : NukeBuild
 					.SetPassword(_steam_password)
 					.SetInstallDir(_depot_dir));
 			}
+
+			var _game_bin_dir = new DirectoryInfo(Path.Combine(_install_dir, _game_name, "bin"));
+			var _sourcetest_bin_dir = new DirectoryInfo(Path.Combine(_install_dir, "sourcetest", "bin"));
+
+			if (!_game_bin_dir.Exists) _game_bin_dir.Create();
+			_sourcetest_bin_dir.CopyAll(_game_bin_dir, true);
 
 		});
 
@@ -212,7 +210,9 @@ class Build : NukeBuild
 
 			if (Configuration != Configuration.Fast)
 			{
-				var _bsp_game_target_file = Path.Combine(_game_dir, "maps", Path.GetFileName(_bsp_file) ?? throw new InvalidOperationException());
+				var map_dir = Path.Combine(_game_dir, "maps");
+				if (!Directory.Exists(map_dir)) Directory.CreateDirectory(map_dir);
+				var _bsp_game_target_file = Path.Combine(map_dir, Path.GetFileName(_bsp_file) ?? throw new InvalidOperationException());
 				File.Move(_bsp_file, _bsp_game_target_file, true);
 
 				Source(_ => new CUBEMAP()
