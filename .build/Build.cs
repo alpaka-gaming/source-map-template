@@ -1,11 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using Nuke.Common;
@@ -70,7 +67,6 @@ class Build : NukeBuild
 	string _vmf_file;
 	string _bsp_file;
 	string _game_dir;
-	string _bin_dir;
 
 	#endregion
 
@@ -130,7 +126,7 @@ class Build : NukeBuild
 			_install_dir = Path.Combine(ToolDirectory, "depots", _steam_sdk_appid.ToString());
 			_game_dir = Path.Combine(_install_dir, _game_name);
 
-			_bin_dir = Path.Combine(_install_dir, "bin");
+			//_bin_dir = Path.Combine(_install_dir, "bin");
 
 			var _game_bin_dir = new DirectoryInfo(Path.Combine(_install_dir, _game_name, "bin"));
 			var _sourcetest_bin_dir = new DirectoryInfo(Path.Combine(_install_dir, "sourcetest", "bin"));

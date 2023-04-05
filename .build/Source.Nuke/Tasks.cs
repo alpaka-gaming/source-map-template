@@ -6,7 +6,6 @@ using Force.Crc32;
 using JetBrains.Annotations;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.Source.Interfaces;
-using Nuke.Common.Tools.Source.Tooling;
 
 namespace Nuke.Common.Tools.Source
 {
