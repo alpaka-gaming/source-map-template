@@ -4,5 +4,7 @@
 	{
 		string Url { get; }
 		bool Download();
+
+		string InstallDir { get; set; }
 	}
 }

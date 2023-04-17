@@ -27,7 +27,7 @@ namespace Nuke.Common.Tools.Source.Tooling
 
 		}
 
-		public override string ProcessToolPath => Path.Combine(ForceInstallDir, Executable);
+		public override string ProcessToolPath => Path.Combine(InstallDir, Executable);
 
 		/// <summary>
 		/// Overwrite existing output files
@@ -36,7 +36,7 @@ namespace Nuke.Common.Tools.Source.Tooling
 
 		public virtual NetworkCredential Credential { get; internal set; }
 		public virtual bool? Validate { get; internal set; }
-		public virtual string ForceInstallDir { get; internal set; }
+		public virtual string InstallDir { get; set; }
 
 		/// <summary>
 		/// Keep (don't delete) input files
@@ -49,7 +49,7 @@ namespace Nuke.Common.Tools.Source.Tooling
 				.Add("+login {value}", $"{Credential.UserName} {Credential.Password}")
 				.Add("app_update {value}", AppId)
 				.Add("validate", Validate)
-				.Add("+force_install_dir {value}", Path.Combine(ForceInstallDir, AppId.ToString()))
+				.Add("+force_install_dir {value}", Path.Combine(InstallDir, AppId.ToString()))
 				.Add("+quit");
 			return base.ConfigureProcessArguments(arguments);
 		}
@@ -195,39 +195,6 @@ namespace Nuke.Common.Tools.Source.Tooling
 		{
 			toolSettings = toolSettings.NewInstance();
 			toolSettings.Validate = !toolSettings.Validate;
-			return toolSettings;
-		}
-
-		#endregion
-
-		#region InstallDir
-
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="toolSettings"></param>
-		/// <param name="forceInstallDir"></param>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		[Pure]
-		public static T SetForceInstallDir<T>(this T toolSettings, string forceInstallDir) where T : STEAMCMD
-		{
-			toolSettings = toolSettings.NewInstance();
-			toolSettings.ForceInstallDir = forceInstallDir;
-			return toolSettings;
-		}
-
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="toolSettings"></param>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		[Pure]
-		public static T ResetForceInstallDir<T>(this T toolSettings) where T : STEAMCMD
-		{
-			toolSettings = toolSettings.NewInstance();
-			toolSettings.ForceInstallDir = null;
 			return toolSettings;
 		}
 

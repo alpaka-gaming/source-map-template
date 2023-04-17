@@ -35,7 +35,7 @@ namespace Nuke.Common.Tools.Source.Tooling
 
 		public virtual string Username { get; internal set; }
 		public virtual string Password { get; internal set; }
-		public virtual string InstallDir { get; internal set; }
+		public virtual string InstallDir { get; set; }
 
 		/// <summary>
 		/// Keep (don't delete) input files
@@ -156,38 +156,6 @@ namespace Nuke.Common.Tools.Source.Tooling
 
 		#endregion
 
-		#region InstallDir
-
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="toolSettings"></param>
-		/// <param name="installDir"></param>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		[Pure]
-		public static T SetInstallDir<T>(this T toolSettings, string installDir) where T : DEPOTDOWNLOADER
-		{
-			toolSettings = toolSettings.NewInstance();
-			toolSettings.InstallDir = installDir;
-			return toolSettings;
-		}
-
-		/// <summary>
-		///
-		/// </summary>
-		/// <param name="toolSettings"></param>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		[Pure]
-		public static T ResetInstallDir<T>(this T toolSettings) where T : DEPOTDOWNLOADER
-		{
-			toolSettings = toolSettings.NewInstance();
-			toolSettings.InstallDir = null;
-			return toolSettings;
-		}
-
-		#endregion
 
 	}
 }

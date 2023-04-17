@@ -11,6 +11,7 @@ using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.Source;
 using Nuke.Common.Tools.Source.Tooling;
+using ValveKeyValue;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.Tools.Source.Tasks;
 
@@ -43,7 +44,7 @@ class Build : NukeBuild
 	public readonly Solution Solution;
 
 	[Parameter("Verbose")]
-	public bool Verbose = !IsLocalBuild;
+	public bool Verbose = true;//!IsLocalBuild;
 
 	AbsolutePath SourceDirectory => RootDirectory / "src";
 	AbsolutePath PublishDirectory => RootDirectory / "publish";
@@ -51,6 +52,7 @@ class Build : NukeBuild
 
 	AbsolutePath ToolDirectory => Solution.Directory / "tools";
 	AbsolutePath MapDirectory => SourceDirectory / "maps";
+	AbsolutePath MaterialsDirectory => SourceDirectory / "materials";
 
 	#region Privates
 
@@ -141,7 +143,7 @@ class Build : NukeBuild
 					.SetAppId(_steam_sdk_appid)
 					.SetCredential(new NetworkCredential(_steam_username, _steam_password))
 					.EnableValidate()
-					.SetForceInstallDir(_depot_dir));
+					.SetInstallDir(_depot_dir));
 			}
 			else if (_source_sdk_mode == "depotdownloader")
 			{
