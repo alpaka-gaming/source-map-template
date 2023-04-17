@@ -587,11 +587,7 @@ package-lock.json
 
 ### Tools ###
 tools/*.zip
-!tools/slammintools.zip
-tools/depotdownloader
-tools/steamcmd
-tools/bzip2
-tools/slammintools
+tools/*
 
 ### Depots ###
 tools/depots
