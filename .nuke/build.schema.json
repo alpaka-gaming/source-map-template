@@ -79,6 +79,7 @@
             "enum": [
               "Clean",
               "Compile",
+              "Materials",
               "Prepare",
               "Publish",
               "Restore"
@@ -97,6 +98,7 @@
             "enum": [
               "Clean",
               "Compile",
+              "Materials",
               "Prepare",
               "Publish",
               "Restore"

@@ -164,6 +164,51 @@ class Build : NukeBuild
 
 		});
 
+	Target Materials => _ => _
+		.DependsOn(Prepare)
+		.Executes(() =>
+		{
+
+			var decodeVmt = (string source) =>
+			{
+				var stream = File.OpenRead(source);// or any other Stream
+
+				var kv = KVSerializer.Create(KVSerializationFormat.KeyValues1Text);
+				var data = kv.Deserialize(stream);
+				return data;
+			};
+
+			var source = from file in Directory.GetFiles(MaterialsDirectory, "*.tga", SearchOption.AllDirectories)
+				let vmtFile = Path.ChangeExtension(file, "vmt")
+				select new {Image = file, Definition = File.Exists(vmtFile) ? decodeVmt(vmtFile) : null};
+
+			var vtf = new VTF();
+			foreach (var file in source)
+			{
+				var nomip = file.Definition?["$nomip"].ToString();
+				var bumpmap = file.Definition?["$bumpmap"].ToString();
+				Source(_ => vtf
+					.SetVerbose(Verbose)
+					.SetNoMipmaps(nomip == "1")
+					.SetProcessWorkingDirectory(ToolDirectory)
+					.SetInstallDir(ToolDirectory)
+					.SetInput(file.Image)
+				);
+				if (!string.IsNullOrWhiteSpace(bumpmap))
+				{
+					Source(_ => vtf
+						.SetVerbose(Verbose)
+						.SetNoMipmaps(nomip == "1")
+						.EnableNormal()
+						.SetProcessWorkingDirectory(ToolDirectory)
+						.SetInstallDir(ToolDirectory)
+						.SetInput(file.Image)
+					);
+				}
+			}
+
+		});
+
 	Target Compile => _ => _
 		.DependsOn(Clean)
 		.DependsOn(Restore)
